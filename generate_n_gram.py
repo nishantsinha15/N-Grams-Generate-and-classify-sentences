@@ -24,17 +24,17 @@ def bigram(tokens):
 
     d = {}
     rev_d = {}
-    len = 0
+    leng = 0
     values = np.asarray([])
     for token in tokens:
         if token not in d:
             values = np.append(values, token)
-            d[token] = len
-            rev_d[len] = token
+            d[token] = leng
+            rev_d[leng] = token
             # print(len, " - ", token)
-            len += 1
-
-    db = np.zeros([len, len])
+            leng += 1
+    print("Types = ", len(d))
+    db = np.zeros([leng, leng])
     prev = '.'
     for token in tokens:
         db[d[prev]][d[token]]+=1
@@ -45,12 +45,12 @@ def bigram(tokens):
     db[ d[tokens[x-1]] ][ d['.'] ]  += 1
     # print(db)
 
-    for i in range(len):
+    for i in range(leng):
         add = np.sum(db[i])
         # print(add)
         if add == 0:
             print( rev_d[i] )
-        for j in range(len):
+        for j in range(leng):
             db[i][j]/=add
 
     # print(db)
@@ -109,23 +109,25 @@ import errno
 path = '/home/nishantsinha15/Documents/sem7/Natural Language Processing/Assignment 3/20_newsgroups/comp.graphics/*'
 files = glob.glob(path)
 article = ""
+count = 0
 for name in files: # 'file' is a builtin type, 'name' is a less-ambiguous variable name.
     try:
         with open(name, 'r') as f: # No need to specify 'r': this is the default.
             print("name - ", name)
             x = str(f.read())
             x = x.lower()
-            print(len(x), end = " ")
             x = re.sub(r'[^:\n]*[:][^\n]*', '', x)
             x = x.strip()
             article += '\n' + (x)
+            count += len(x)
     except IOError as exc:
         if exc.errno != errno.EISDIR: # Do not fail if a directory is found, just ignore it.
             raise # Propagate other kinds of IOError.
 
+print(count)
 
 # 2238187
 tokens = preprocess(article)
 print("Preprocessing complete. Tokens found = ",tokens.shape )
-unigram(tokens)
-bigram(tokens)
+# unigram(tokens)
+# bigram(tokens)
