@@ -21,7 +21,6 @@ def preprocess(text):
 
 
 def bigram(tokens):
-
     d = {}
     rev_d = {}
     leng = 0
