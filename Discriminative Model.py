@@ -64,6 +64,12 @@ def bigram(tokens):
     x = (tokens.shape[0])
     db[d[tokens[x - 1]]][d['.']] += 1
 
+    # Applying laplace smoothening
+    for i in range(leng):
+        add = np.sum(db[i])
+        for j in range(leng):
+            db[i][j] = ((db[i][j] + 1)*add )/(add + leng)
+
     # Converting the count table into a probability table
     for i in range(leng):
         add = np.sum(db[i])
@@ -73,19 +79,23 @@ def bigram(tokens):
     return db, d
 
 
-def probability(sentence, data_tokens):
+def probability(sentence, data_tokens, uni_p, bi_p, dick ):
     input_tokens = np.asarray(nltk.word_tokenize(sentence))
-    uni_p = unigram(data_tokens)
-    bi_p, dick = bigram(data_tokens)
+    base_p = float(1/len(data_tokens)) * 0.1
 
     if input_tokens[0] not in uni_p:
-        p = float(1/len(data_tokens)) * 0.1
+        p = base_p
     else:
         p = uni_p[input_tokens[0]]
 
     prev = input_tokens[0]
     for i in range(1, len(input_tokens) ):
-        p *= bi_p[ dick[prev] ][ dick[input_tokens[i]] ]
+        if input_tokens[i] not in dick:
+            p *= base_p
+        elif prev not in dick:
+            p *= uni_p[input_tokens[i]]
+        else:
+            p *= bi_p[ dick[prev] ][ dick[input_tokens[i]] ]
     return p
 
 
@@ -117,3 +127,24 @@ def graphics():
             if exc.errno != errno.EISDIR:  # Do not fail if a directory is found, just ignore it.
                 raise  # Propagate other kinds of IOError.
     tokens = np.asarray(nltk.word_tokenize(article))
+    return tokens
+
+
+def main():
+    n = int(input())
+    sentences = []
+    for i in range(n):
+        sentence = input()
+        sentences.append(sentence)
+    graphic_tokens = graphics()
+    print("Model tokenized")
+    uni_p = unigram(graphic_tokens)
+    print("Unigrtam Model created")
+    bi_p, dick = bigram(graphic_tokens)
+    print("Bigram model created")
+    for sentence in sentences:
+        print(sentence, probability(sentence, graphic_tokens, uni_p, bi_p, dick))
+
+
+
+main()
