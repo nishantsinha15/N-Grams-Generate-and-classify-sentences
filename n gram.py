@@ -19,7 +19,7 @@ def preprocess(text):
             text = text.replace(char, " ")
     text = ''.join([i for i in text if not i.isdigit()])
     text = text.strip()
-    # text = np.asarray(nltk.word_tokenize(text))
+    # text = np.asarray(nltk.w_tokenize(text))
     return text
 
 
@@ -43,11 +43,15 @@ def unigram(tokens):
     print("Unigram 1: ", end=" ")
     while c not in end:
         c = np.random.choice(values, p=p)
+        if len(c) <= 1 and 'a' <= (c) <= 'z':
+            continue
         print(c, end=" ")
     print("\nUnigram 2: ", end=" ")
     c = 'a'
     while c not in end:
         c = np.random.choice(values, p=p)
+        if len(c) <= 1 and 'a' <= (c) <= 'z':
+            continue
         print(c, end=" ")
     print()
 
@@ -56,10 +60,10 @@ def bigram(token_list):
     probability = {}
     val = {}
     p = {}
-    for word in token_list:
-        probability[word] = {}
-        val[word] = []
-        p[word] = []
+    for w in token_list:
+        probability[w] = {}
+        val[w] = []
+        p[w] = []
 
     prev = '.'
     for token in token_list:
@@ -88,6 +92,8 @@ def bigram(token_list):
     flag = True
     while prev not in end or flag:
         prev = np.random.choice(val[prev], p=p[prev])
+        if len(prev) <= 1 and 'a' <= (prev) <= 'z':
+            continue
         print(prev, end=" ")
         flag = False
     print()
@@ -96,6 +102,8 @@ def bigram(token_list):
     flag = True
     while prev not in end or flag:
         prev = np.random.choice(val[prev], p=p[prev])
+        if len(prev) <= 1 and 'a' <= (prev) <= 'z':
+            continue
         print(prev, end=" ")
         flag = False
     print()
@@ -140,6 +148,8 @@ def trigram(token_list):
             p.append(probability[prev1][prev2][key])
         prev1 = prev2
         prev2 = np.random.choice(val, p = p )
+        if len(prev2) <= 1 and 'a' <= (prev2) <= 'z':
+            continue
         print(prev2, end = " ")
     print()
     prev1 = '.'
@@ -153,6 +163,8 @@ def trigram(token_list):
             p.append(probability[prev1][prev2][key])
         prev1 = prev2
         prev2 = np.random.choice(val, p=p)
+        if len(prev2) <= 1 and 'a' <= (prev2) <= 'z':
+            continue
         print(prev2, end=" ")
     print()
 
@@ -174,7 +186,9 @@ def graphics():
             if exc.errno != errno.EISDIR:  # Do not fail if a directory is found, just ignore it.
                 raise  # Propagate other kinds of IOError.
     tokens = np.asarray(nltk.word_tokenize(article))
-    # unigram(tokens)
+
+    unigram(tokens)
+
     trigram(tokens)
 
 

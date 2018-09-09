@@ -12,11 +12,9 @@ end = '!.?'
 def preprocess(text):
     text = text.lower()
     text = re.sub(r'[^:\n]*[:][^\n]*', '', text)
-    a = string.punctuation
-    b = '!,.;?@'
-    for char in a:
-        if char not in b:
-            text = text.replace(char, " ")
+    for char in string.punctuation:
+        if char != '.':
+            text = text.replace(char, "")
     text = ''.join([i for i in text if not i.isdigit()])
     text = text.strip()
     # text = np.asarray(nltk.word_tokenize(text))
@@ -81,7 +79,7 @@ def bigram(tokens):
 
 def probability(sentence, data_tokens, uni_p, bi_p, dick ):
     input_tokens = np.asarray(nltk.word_tokenize(sentence))
-    base_p = float(1/len(data_tokens)) * 0.1
+    base_p = 0.00000000001
 
     if input_tokens[0] not in uni_p:
         p = base_p
@@ -118,7 +116,27 @@ def graphics():
     for name in files:  # 'file' is a builtin type, 'name' is a less-ambiguous variable name.
         try:
             with open(name, 'r') as f:  # No need to specify 'r': this is the default.
-                print("name = ", name)
+                # print("name = ", name)
+                x = str(f.read())
+                x = preprocess(x)
+                article += '\n' + x
+                count += len(x)
+        except IOError as exc:
+            if exc.errno != errno.EISDIR:  # Do not fail if a directory is found, just ignore it.
+                raise  # Propagate other kinds of IOError.
+    tokens = np.asarray(nltk.word_tokenize(article))
+    return tokens
+
+
+def motorcycles():
+    path = '/home/nishantsinha15/Documents/sem7/Natural Language Processing/Assignment 3/20_newsgroups/rec.motorcycles/*'
+    files = glob.glob(path)
+    article = ""
+    count = 0
+    for name in files:  # 'file' is a builtin type, 'name' is a less-ambiguous variable name.
+        try:
+            with open(name, 'r') as f:  # No need to specify 'r': this is the default.
+                # print("name = ", name)
                 x = str(f.read())
                 x = preprocess(x)
                 article += '\n' + x
@@ -135,7 +153,24 @@ def main():
     sentences = []
     for i in range(n):
         sentence = input()
+        for char in string.punctuation:
+            sentence = sentence.replace(char, "")
         sentences.append(sentence)
+
+    p1 = 0.0
+    p2 = 0.0
+
+    print("Woreking on Bikes")
+    motor_tokens = motorcycles()
+    print("Model tokenized")
+    uni_p = unigram(motor_tokens)
+    print("Unigrtam Model created")
+    bi_p, dick = bigram(motor_tokens)
+    print("Bigram model created")
+    for sentence in sentences:
+        p1 = probability(sentence, motor_tokens, uni_p, bi_p, dick)
+
+    print("Woreking on Graphics")
     graphic_tokens = graphics()
     print("Model tokenized")
     uni_p = unigram(graphic_tokens)
@@ -143,8 +178,12 @@ def main():
     bi_p, dick = bigram(graphic_tokens)
     print("Bigram model created")
     for sentence in sentences:
-        print(sentence, probability(sentence, graphic_tokens, uni_p, bi_p, dick))
+        p2 =  probability(sentence, graphic_tokens, uni_p, bi_p, dick)
 
-
+    print(p1, p2)
+    if p1 > p2:
+        print('Motorcycle')
+    else:
+        print('Graphics')
 
 main()
