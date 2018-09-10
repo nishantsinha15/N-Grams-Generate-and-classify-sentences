@@ -36,6 +36,17 @@ def unigram(tokens):
     return d
 
 
+def unknown( tokens, uni_p ):
+    new_tokens = []
+    total = len(tokens)
+    for token in tokens:
+        if uni_p[token]*total <= 1:
+            new_tokens.append('UNK')
+        else:
+            new_tokens.append(token)
+    return np.asarray(new_tokens)
+
+
 def bigram(tokens):
     d = {}
     rev_d = {}
@@ -80,19 +91,18 @@ def bigram(tokens):
 
 def probability(sentence, data_tokens, uni_p, bi_p, dick ):
     input_tokens = np.asarray(nltk.word_tokenize(sentence))
-    base_p = 0.00000000001
+    prev = input_tokens[0]
 
     if input_tokens[0] not in uni_p:
-        p = base_p
+        prev = 'UNK'
+        p = uni_p['UNK']
     else:
         p = uni_p[input_tokens[0]]
 
-    prev = input_tokens[0]
     for i in range(1, len(input_tokens) ):
         if input_tokens[i] not in dick:
-            p *= base_p
-        elif prev not in dick:
-            p *= uni_p[input_tokens[i]]
+            p *= bi_p[ dick[prev] ][ dick['UNK'] ]
+            prev = 'UNK'
         else:
             p *= bi_p[ dick[prev] ][ dick[input_tokens[i]] ]
     return p
@@ -130,7 +140,7 @@ def graphics():
     tokens = [ w for w in tokens if not w in stop_words ]
     tokens = np.asarray(tokens)
     # tokens = np.asarray(nltk.word_tokenize(article))
-    return tokens
+    return np.asarray(tokens)
 
 
 def motorcycles():
@@ -153,7 +163,7 @@ def motorcycles():
     stop_words = set(stopwords.words('english'))
     tokens = [w for w in tokens if not w in stop_words]
     tokens = np.asarray(tokens)
-    return tokens
+    return np.asarray(tokens)
 
 
 def main():
@@ -172,21 +182,27 @@ def main():
     motor_tokens = motorcycles()
     print("Model tokenized")
     uni_p = unigram(motor_tokens)
+    motor_tokens = unknown(motor_tokens, uni_p)
+    uni_p = unigram(motor_tokens)
     print("Unigrtam Model created")
     bi_p, dick = bigram(motor_tokens)
     print("Bigram model created")
     for sentence in sentences:
         p1 = probability(sentence, motor_tokens, uni_p, bi_p, dick)
+        print(p1)
 
     print("Woreking on Graphics")
     graphic_tokens = graphics()
     print("Model tokenized")
+    uni_p = unigram(graphic_tokens)
+    graphic_tokens = unknown(graphic_tokens, uni_p)
     uni_p = unigram(graphic_tokens)
     print("Unigrtam Model created")
     bi_p, dick = bigram(graphic_tokens)
     print("Bigram model created")
     for sentence in sentences:
         p2 =  probability(sentence, graphic_tokens, uni_p, bi_p, dick)
+        print(p2)
 
     print(p1, p2)
     if p1 > p2:

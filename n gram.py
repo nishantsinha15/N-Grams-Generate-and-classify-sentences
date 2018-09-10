@@ -16,7 +16,7 @@ def preprocess(text):
     b = '!,.;?@'
     for char in a:
         if char not in b:
-            text = text.replace(char, " ")
+            text = text.replace(char, "")
     text = ''.join([i for i in text if not i.isdigit()])
     text = text.strip()
     # text = np.asarray(nltk.w_tokenize(text))
@@ -177,7 +177,6 @@ def graphics():
     for name in files:  # 'file' is a builtin type, 'name' is a less-ambiguous variable name.
         try:
             with open(name, 'r') as f:  # No need to specify 'r': this is the default.
-                print("name = ", name)
                 x = str(f.read())
                 x = preprocess(x)
                 article += '\n' + x
@@ -188,7 +187,7 @@ def graphics():
     tokens = np.asarray(nltk.word_tokenize(article))
 
     unigram(tokens)
-
+    bigram(tokens)
     trigram(tokens)
 
 
